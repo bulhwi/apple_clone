@@ -24,6 +24,7 @@ a {
     width: 100%;
     height: 44px;
     padding:0 1rem;
+    z-index: 10;
 }
 .local-nav {
     position: absolute;
@@ -33,6 +34,7 @@ a {
     height: 52px;
     border-bottom: 1px solid #ddd;
     padding:0 1rem;
+    z-index: 11;
 }
 .global-nav-links,
 .local-nav-links {
@@ -57,10 +59,12 @@ a {
     margin-left: 2em;
 }
 .scroll-section {
-    border: red 3px solid;
     padding-top: 50vh;
 }
 #scroll-section-0 h1 {
+    position: relative;
+    top: -10vh;
+    z-index: 5;
     font-size: 4rem;
     text-align: center;
 }
@@ -103,6 +107,7 @@ a {
 .desc-message {
     width: 50%;
     font-weight: bold;
+    opacity: 0;
 }
 .pin {
     width: 1px;
@@ -135,7 +140,6 @@ a {
     color: #888;
     /*text-align: center;*/
 }
-
 .footer {
     display: flex;
     align-items: center;
@@ -152,7 +156,14 @@ a {
     width: 100%;
 }
 .sticky-elem-canvas{
+    top: 0;
+    height: 100%;
+}
 
+.sticky-elem-canvas canvas {
+    position: absolute;
+    top: 50%;
+    left: 50%;
 }
 #show-scene-0 #scroll-section-0 .sticky-elem,
 #show-scene-1 #scroll-section-1 .sticky-elem,

@@ -16,8 +16,14 @@
         messageB: document.querySelector("#scroll-section-0 .main-message.b"),
         messageC: document.querySelector("#scroll-section-0 .main-message.c"),
         messageD: document.querySelector("#scroll-section-0 .main-message.d"),
+        canvas: document.querySelector("#video-canvas-0"),
+        context: document.querySelector("#video-canvas-0").getContext('2d'),
+        videoImages: []
       },
       values: {
+        videoImageCount: 300, // 최대 이미지 개수
+        imageSequence: [0, 299], //이미지의 시퀀스
+        canvas_opacity:[1, 0, {start:0.9, end:1}], //canvas의 사라지는 시점
         //투명도의 범위, 애니메이션 실행 구간정보
         messageA_opacity_in: [0, 1, {start: 0.1, end: 0.2}],
         messageB_opacity_in: [0, 1, {start: 0.3, end: 0.4}],
@@ -58,9 +64,16 @@
         messageB: document.querySelector('#scroll-section-2 .b'),
         messageC: document.querySelector('#scroll-section-2 .c'),
         pinB: document.querySelector('#scroll-section-2 .b .pin'),
-        pinC: document.querySelector('#scroll-section-2 .c .pin')
+        pinC: document.querySelector('#scroll-section-2 .c .pin'),
+        canvas: document.querySelector("#video-canvas-1"),
+        context: document.querySelector("#video-canvas-1").getContext('2d'),
+        videoImages: []
       },
       values: {
+        videoImageCount: 960, // 최대 이미지 개수
+        imageSequence: [0, 959], //이미지의 시퀀스
+        canvas_opacity_in:[0, 1, {start:0, end:0.1}], //canvas의 사라지는 시점
+        canvas_opacity_out:[1, 0, {start:0.95, end:1}], //canvas의 사라지는 시점
         messageA_translateY_in: [20, 0, { start: 0.15, end: 0.2 }],
         messageB_translateY_in: [30, 0, { start: 0.6, end: 0.65 }],
         messageC_translateY_in: [30, 0, { start: 0.87, end: 0.92 }],
@@ -92,6 +105,23 @@
     },
   ];
 
+  function setCanvasImage() {
+    let imgElem;
+    for(let i = 0; i<sceneInfo[0].values.videoImageCount; i++) {
+      imgElem = new Image();
+      imgElem.src = `./video/001/IMG_${6726 + i}.JPG`;
+      sceneInfo[0].objs.videoImages.push(imgElem);
+    }
+
+    let imgElem2;
+    for(let i = 0; i<sceneInfo[2].values.videoImageCount; i++) {
+      imgElem2 = new Image();
+      imgElem2.src = `./video/002/IMG_${7027 + i}.JPG`;
+      sceneInfo[2].objs.videoImages.push(imgElem2);
+    }
+  }
+  setCanvasImage();
+
   function setLayout() {
     //각 스크롤 섹션의 높이 세팅
     for(let i = 0; i<sceneInfo.length; i++) {
@@ -114,6 +144,11 @@
       }
     }
     document.body.setAttribute("id", `show-scene-${currentScene}`);
+
+    //브라우저 창 사이즈에 맞춰서 canvas의 높이를 맞춤.
+    const heightRatio = window.innerHeight / 1080;
+    sceneInfo[0].objs.canvas.style.transform = `translate3d(-50%, -50%, 0) scale(${heightRatio})`;
+    sceneInfo[2].objs.canvas.style.transform = `translate3d(-50%, -50%, 0) scale(${heightRatio})`;
   }
 
   function calcValues(values, currentYOffset) {
@@ -149,10 +184,9 @@
     const scrollRatio = currentYOffset / scrollHeight;
     switch (currentScene) {
       case 0:
-        // const messageA_opacity_in = calcValues(values.messageA_opacity_in, currentYOffset);
-        // const messageA_opacity_out = calcValues(values.messageA_opacity_out, currentYOffset);
-        // const messageA_translateY_in = calcValues(values.messageA_translateY_in, currentYOffset);
-        // const messageA_translateY_out = calcValues(values.messageA_translateY_out, currentYOffset);
+        let sequence = Math.round(calcValues(values.imageSequence, currentYOffset));
+        objs.context.drawImage(objs.videoImages[sequence], 0, 0);
+        objs.canvas.style.opacity = calcValues(values.canvas_opacity, currentYOffset);
         if(scrollRatio <= 0.22) {
           // in
           objs.messageA.style.opacity = calcValues(values.messageA_opacity_in, currentYOffset);
@@ -196,6 +230,17 @@
         break;
       case 2:
         // console.log('2 play');
+        let sequence2 = Math.round(calcValues(values.imageSequence, currentYOffset));
+        objs.context.drawImage(objs.videoImages[sequence2], 0, 0);
+
+        if(scrollRatio <= 0.5) {
+          // canvas 투명도 in
+          objs.canvas.style.opacity = calcValues(values.canvas_opacity_in, currentYOffset);
+        }else {
+          // canvas 투명도 out
+          objs.canvas.style.opacity = calcValues(values.canvas_opacity_out, currentYOffset);
+        }
+
         if (scrollRatio <= 0.32) {
           // in
           objs.messageA.style.opacity = calcValues(values.messageA_opacity_in, currentYOffset);
@@ -272,6 +317,10 @@
   })
 
   //브라우저 크기가 변할때도 호출.
-  window.addEventListener("load", setLayout);
+  window.addEventListener("load", () => {
+    setLayout();
+    //브라우저 로드시 첫번째 씬에 첫번째 이미지로 바인딩함.
+    sceneInfo[0].objs.context.drawImage(sceneInfo[0].objs.videoImages[0], 0, 0);
+  });
   window.addEventListener("resize", setLayout);
 })()
