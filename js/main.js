@@ -97,10 +97,18 @@
       scrollHeight: 0,
       objs: {
         container: document.querySelector("#scroll-section-3"),
-        canvasCaption: document.querySelector('.canvas-caption')
+        canvasCaption: document.querySelector('.canvas-caption'),
+        canvas: document.querySelector(".image-blend-canvas"),
+        context: document.querySelector(".image-blend-canvas").getContext('2d'),
+        imagesPath: [
+          './images/blend-image-1.jpg',
+          './images/blend-image-2.jpg'
+        ],
+        images:[]
       },
       values: {
-
+        rect1X: [0, 0, {start: 0, end: 0}], //left white rect
+        rect2X: [0, 0, {start: 0, end: 0}], //right white rect
       }
     },
   ];
@@ -118,6 +126,13 @@
       imgElem2 = new Image();
       imgElem2.src = `./video/002/IMG_${7027 + i}.JPG`;
       sceneInfo[2].objs.videoImages.push(imgElem2);
+    }
+
+    let imgElem3;
+    for(let i = 0; i<sceneInfo[3].objs.imagesPath.length; i++) {
+      imgElem3 = new Image();
+      imgElem3.src = sceneInfo[3].objs.imagesPath[i];
+      sceneInfo[3].objs.images.push(imgElem3);
     }
   }
   setCanvasImage();
@@ -277,6 +292,33 @@
         break;
       case 3:
         // console.log('3 play');
+        // 가로/세로 모두 꽉차게 하기 위해 여기서 세팅(계산필요)
+        const widthRatio = window.innerWidth / objs.canvas.width;
+        const heightRatio = window.innerHeight / objs.canvas.height;
+        let canvasScaleRatio;
+
+        if(widthRatio <= heightRatio) {
+          canvasScaleRatio = heightRatio;
+        }else {
+          canvasScaleRatio = widthRatio;
+        }
+        objs.canvas.style.transform = `scale(${canvasScaleRatio})`;
+        objs.context.drawImage(objs.images[0], 0, 0);
+
+        // 캔버스 사이즈에 맞춰 가정한 'innerWidth'와 'innerHeight'
+        const reCalculatedInnerWidth = window.innerWidth / canvasScaleRatio;
+        const reCalculatedInnerHeight = window.innerHeight / canvasScaleRatio;
+
+        const whiteRectWidth = reCalculatedInnerWidth * 0.15;
+        values.rect1X[0] = (objs.canvas.width - reCalculatedInnerWidth) / 2;
+        values.rect1X[1] = values.rect1X[0] - whiteRectWidth;
+        values.rect2X[0] = values.rect1X[0] + reCalculatedInnerWidth - whiteRectWidth;
+        values.rect2X[1] = values.rect2X[0] + whiteRectWidth;
+
+        //좌우 흰색 박스 그리기
+        objs.context.fillRect(values.rect1X[0], 0, parseInt(whiteRectWidth), reCalculatedInnerHeight);
+        objs.context.fillRect(values.rect2X[0], 0, parseInt(whiteRectWidth), reCalculatedInnerHeight);
+
         break;
     }
   }
