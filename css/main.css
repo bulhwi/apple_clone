@@ -59,6 +59,7 @@ a {
     margin-left: 2em;
 }
 .scroll-section {
+    position: relative;
     padding-top: 50vh;
 }
 #scroll-section-0 h1 {
@@ -172,7 +173,7 @@ a {
     display: block;
 }
 .image-blend-canvas{
-    border:3px solid red;
+    /*border:3px solid red;*/
 }
 #scroll-section-3{
     display: flex;
