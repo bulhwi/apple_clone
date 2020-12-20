@@ -330,6 +330,7 @@
         break;
       case 3:
         // console.log('3 play');
+        let step = 0;
         // 가로/세로 모두 꽉차게 하기 위해 여기서 세팅(계산필요)
         const widthRatio = window.innerWidth / objs.canvas.width;
         const heightRatio = window.innerHeight / objs.canvas.height;
@@ -368,6 +369,17 @@
         // objs.context.fillRect(values.rect2X[0], 0, parseInt(whiteRectWidth), reCalculatedInnerHeight);
         objs.context.fillRect(parseInt(calcValues(values.rect1X, currentYOffset)), 0, parseInt(whiteRectWidth), objs.canvas.height);
         objs.context.fillRect(parseInt(calcValues(values.rect2X, currentYOffset)), 0, parseInt(whiteRectWidth), objs.canvas.height);
+
+        if(scrollRatio < values.rect1X[2].end) {
+          // 캔버스가 브라우저 상단에 닿기 전
+          step = 1;
+          objs.canvas.classList.remove("sticky");
+        }else {
+          // 캔버스가 브라우저 상단에 닿기 후
+          step = 2;
+          objs.canvas.classList.add("sticky");
+          objs.canvas.style.top = `${-(objs.canvas.height - objs.canvas.height * canvasScaleRatio) / 2}px`;
+        }
 
         break;
     }

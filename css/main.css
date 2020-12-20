@@ -152,7 +152,6 @@ a {
 .sticky-elem{
     display: none;
     position: fixed;
-    /*top: 0;*/
     left: 0;
     width: 100%;
 }
@@ -172,8 +171,8 @@ a {
 #show-scene-3 #scroll-section-3 .sticky-elem {
     display: block;
 }
-.image-blend-canvas{
-    /*border:3px solid red;*/
+.image-blend-canvas.sticky{
+    position: fixed;
 }
 #scroll-section-3{
     display: flex;
