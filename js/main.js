@@ -109,6 +109,10 @@
       values: {
         rect1X: [0, 0, {start: 0, end: 0}], //left white rect
         rect2X: [0, 0, {start: 0, end: 0}], //right white rect
+        blendHeight: [0, 0, {start: 0, end: 0}],
+        canvas_scale: [0, 0, {start: 0, end: 0}],
+        canvasCaption_opacity: [0, 1, {start: 0, end: 0}],
+        canvasCaption_translateY: [20, 0, {start: 0, end: 0}],
         rectStartY: 0
       }
     },
@@ -137,6 +141,14 @@
     }
   }
   setCanvasImage();
+
+  function checkMenu() {
+    if(yOffset > 44) {
+      document.body.classList.add("local-nav-sticky");
+    }else {
+      document.body.classList.remove("local-nav-sticky");
+    }
+  }
 
   function setLayout() {
     //각 스크롤 섹션의 높이 세팅
@@ -295,8 +307,7 @@
         if(scrollRatio > 0.9) {
           const objs = sceneInfo[3].objs;
           const values = sceneInfo[3].values;
-          console.log(objs);
-          console.log(values);
+
           const widthRatio = window.innerWidth / objs.canvas.width;
           const heightRatio = window.innerHeight / objs.canvas.height;
           let canvasScaleRatio;
@@ -323,8 +334,8 @@
           //좌우 흰색 박스 그리기
           // objs.context.fillRect(values.rect1X[0], 0, parseInt(whiteRectWidth), reCalculatedInnerHeight);
           // objs.context.fillRect(values.rect2X[0], 0, parseInt(whiteRectWidth), reCalculatedInnerHeight);
-          objs.context.fillRect(valuse.rect1X[0], 0, parseInt(whiteRectWidth), objs.canvas.height);
-          objs.context.fillRect(valuse.rect2X[0], 0, parseInt(whiteRectWidth), objs.canvas.height);
+          objs.context.fillRect(values.rect1X[0], 0, parseInt(whiteRectWidth), objs.canvas.height);
+          objs.context.fillRect(values.rect2X[0], 0, parseInt(whiteRectWidth), objs.canvas.height);
         }
 
         break;
@@ -375,10 +386,45 @@
           step = 1;
           objs.canvas.classList.remove("sticky");
         }else {
-          // 캔버스가 브라우저 상단에 닿기 후
+          // 캔버스가 브라우저 상단에 닿은 후
           step = 2;
+          values.blendHeight[0] = 0;
+          values.blendHeight[1] = objs.canvas.height;
+          values.blendHeight[2].start = values.rect1X[2].end;
+          values.blendHeight[2].end = values.blendHeight[2].start + 0.2;
+          const blendHeight = calcValues(values.blendHeight, currentYOffset);
+
+          objs.context.drawImage(objs.images[1],
+              0, objs.canvas.height - blendHeight, objs.canvas.width, blendHeight,
+              0, objs.canvas.height - blendHeight, objs.canvas.width, blendHeight
+            );
+
           objs.canvas.classList.add("sticky");
           objs.canvas.style.top = `${-(objs.canvas.height - objs.canvas.height * canvasScaleRatio) / 2}px`;
+
+          if(scrollRatio > values.blendHeight[2].end) {
+            values.canvas_scale[0] = canvasScaleRatio;
+            values.canvas_scale[1] = document.body.offsetWidth / (1.5 * objs.canvas.width);
+            values.canvas_scale[2].start = values.blendHeight[2].end;
+            values.canvas_scale[2].end = values.canvas_scale[2].start + 0.2;
+
+            objs.canvas.style.transform = `scale(${calcValues(values.canvas_scale, currentYOffset)})`;
+            objs.canvas.style.marginTop = 0;
+          }
+
+          if(scrollRatio > values.canvas_scale[2].end && values.canvas_scale[2].end > 0) {
+            objs.canvas.classList.remove("sticky");
+            objs.canvas.style.marginTop = `${scrollHeight * 0.4}px`;
+
+            values.canvasCaption_opacity[2].start = values.canvas_scale[2].end;
+            values.canvasCaption_opacity[2].end = values.canvasCaption_opacity[2].start + 0.1;
+
+            values.canvasCaption_translateY[2].start = values.canvasCaption_opacity[2].start;
+            values.canvasCaption_translateY[2].end = values.canvasCaption_opacity[2].end;
+
+            objs.canvasCaption.style.opacity = calcValues(values.canvasCaption_opacity, currentYOffset);
+            objs.canvasCaption.style.transform = `translate3d(0, ${calcValues(values.canvasCaption_translateY, currentYOffset)}%, 0)`;
+          }
         }
 
         break;
@@ -418,6 +464,7 @@
     // window.pageYOffset 현재 스크롤 값
     yOffset = window.pageYOffset;
     scrollLoop();
+    checkMenu();
   })
 
   //브라우저 크기가 변할때도 호출.
