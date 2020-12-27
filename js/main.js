@@ -4,6 +4,11 @@
   let prevScrollHeight = 0; // 현재 스크롤 위치(yOffset)보다 이전에 위치한 스크롤 섹션들의 스크롤 높이값의 합
   let currentScene = 0; // 현재 활성화된 scene index
   let enterNewScene = false; // 새로운 scene이 시작된 순간 true
+  let acc = 0.1;
+  let delayedYOffset = 0;
+  let rafId;
+  let rafState;
+
   const sceneInfo = [
     {
       // 0
@@ -140,7 +145,6 @@
       sceneInfo[3].objs.images.push(imgElem3);
     }
   }
-  setCanvasImage();
 
   function checkMenu() {
     if(yOffset > 44) {
@@ -212,8 +216,8 @@
     const scrollRatio = currentYOffset / scrollHeight;
     switch (currentScene) {
       case 0:
-        let sequence = Math.round(calcValues(values.imageSequence, currentYOffset));
-        objs.context.drawImage(objs.videoImages[sequence], 0, 0);
+        // let sequence = Math.round(calcValues(values.imageSequence, currentYOffset));
+        // objs.context.drawImage(objs.videoImages[sequence], 0, 0);
         objs.canvas.style.opacity = calcValues(values.canvas_opacity, currentYOffset);
         if(scrollRatio <= 0.22) {
           // in
@@ -258,8 +262,8 @@
         break;
       case 2:
         // console.log('2 play');
-        let sequence2 = Math.round(calcValues(values.imageSequence, currentYOffset));
-        objs.context.drawImage(objs.videoImages[sequence2], 0, 0);
+        // let sequence2 = Math.round(calcValues(values.imageSequence, currentYOffset));
+        // objs.context.drawImage(objs.videoImages[sequence2], 0, 0);
 
         if(scrollRatio <= 0.5) {
           // canvas 투명도 in
@@ -438,13 +442,13 @@
       prevScrollHeight += sceneInfo[i].scrollHeight;
     }
 
-    if(yOffset > prevScrollHeight + sceneInfo[currentScene].scrollHeight) {
+    if(delayedYOffset > prevScrollHeight + sceneInfo[currentScene].scrollHeight) {
       enterNewScene = true;
       currentScene++;
       document.body.setAttribute("id", `show-scene-${currentScene}`);
     }
 
-    if(yOffset < prevScrollHeight) {
+    if(delayedYOffset < prevScrollHeight) {
       enterNewScene = true;
       if(currentScene === 0) {
         return;
@@ -460,11 +464,39 @@
     playAnimation();
   }
 
+  // todo: 브드러운 감속 처리
+  function loop() {
+    delayedYOffset = delayedYOffset + (yOffset - delayedYOffset) * acc;
+    if(!enterNewScene) {
+      const currentYOffset = delayedYOffset - prevScrollHeight;
+      const objs = sceneInfo[currentScene].objs;
+      const values = sceneInfo[currentScene].values;
+      if(currentScene === 0 || currentScene === 2) {
+        let sequence = Math.round(calcValues(values.imageSequence, currentYOffset));
+        if(objs.videoImages[sequence]) {
+          objs.context.drawImage(objs.videoImages[sequence], 0, 0);
+        }
+      }
+    }
+
+    rafId = requestAnimationFrame(loop);
+
+    if(Math.abs(yOffset - delayedYOffset) < 1) {
+      cancelAnimationFrame(rafId);
+      rafState = false;
+    }
+  }
+
   window.addEventListener("scroll", () => {
     // window.pageYOffset 현재 스크롤 값
     yOffset = window.pageYOffset;
     scrollLoop();
     checkMenu();
+
+    if(!rafState) {
+      rafId = requestAnimationFrame(loop);
+      rafState = true;
+    }
   })
 
   //브라우저 크기가 변할때도 호출.
@@ -473,5 +505,15 @@
     //브라우저 로드시 첫번째 씬에 첫번째 이미지로 바인딩함.
     sceneInfo[0].objs.context.drawImage(sceneInfo[0].objs.videoImages[0], 0, 0);
   });
-  window.addEventListener("resize", setLayout);
+  window.addEventListener("resize", () => {
+    // setLayout
+    if(window.innerWidth > 900) {
+      setLayout();
+    }
+    sceneInfo[3].values.rectStartY = 0;
+  });
+
+  window.addEventListener("orientationchange", setLayout);
+
+  setCanvasImage();
 })()
