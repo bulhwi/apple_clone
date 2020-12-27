@@ -4,3 +4,5 @@
 ## 애플 웹사이트 인터랙션 클론
 실제 video(mp4)를 초당 프레임으로 나눈 이미지를 이용하여 비디오 인터랙션을 구현함.
 
+이미지 감속 처리  
+[requestAnimationFrame, cancelAnimationFrame MDN](https://developer.mozilla.org/ko/docs/Web/API/Window/requestAnimationFrame)
