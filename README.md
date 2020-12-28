@@ -6,3 +6,6 @@
 
 이미지 감속 처리  
 [requestAnimationFrame, cancelAnimationFrame MDN](https://developer.mozilla.org/ko/docs/Web/API/Window/requestAnimationFrame)
+
+CSS 최적화 속성  
+[css will-change MDN](https://developer.mozilla.org/ko/docs/Web/CSS/will-change)

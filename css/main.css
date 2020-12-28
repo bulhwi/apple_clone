@@ -17,6 +17,12 @@ a {
     color: rgb(29, 29, 31);
     text-decoration: none; /*a tag에 스타일이 빠짐*/
 }
+body.before-load{
+    overflow: hidden;
+}
+.container{
+    overflow-x: hidden;
+}
 .global-nav {
     position: absolute;
     top: 0;
@@ -40,6 +46,8 @@ a {
     position: fixed;
     top: 0;
     background: rgba(255,255,255, 0.1);
+    /* iphone 뿌옇게 되는 처리 */
+    -webkit-backdrop-filter: saturate(180%) blur(15px);;
     backdrop-filter: saturate(180%) blur(15px);
 }
 .global-nav-links,
@@ -141,11 +149,10 @@ a {
 }
 .canvas-caption {
     max-width: 1000px;
-    margin: -5em auto 0;
+    margin: -24rem auto 0;
     padding: 0 1rem;
     font-size: 1.2rem;
     color: #888;
-    /*text-align: center;*/
 }
 .footer {
     display: flex;
@@ -176,6 +183,10 @@ a {
 #show-scene-2 #scroll-section-2 .sticky-elem,
 #show-scene-3 #scroll-section-3 .sticky-elem {
     display: block;
+    will-change: transform, opacity;
+}
+.scroll-effect-end .sticky-elem {
+    display: none !important;
 }
 .image-blend-canvas.sticky{
     position: fixed;
@@ -184,6 +195,58 @@ a {
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+.loading{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    right:0;
+    bottom:0;
+    left: 0;
+    z-index: 100;
+    background: white;
+    opacity: 0;
+    transition: 0.5s;
+}
+.before-load .container {
+    display: none;
+}
+.before-load .loading{
+    opacity: 1;
+}
+@keyframes loading-spin {
+    100%{
+        transform: rotate(360deg);
+    }
+}
+@keyframes loading-circle-ani {
+    0%{
+        stroke-dashoffset: 157;
+    }
+    75%{
+        stroke-dashoffset: -147;
+    }
+    100%{
+        stroke-dashoffset: -157;
+    }
+}
+.loading-circle{
+    width: 54px;
+    height: 54px;
+    animation: loading-spin 3s infinite;
+}
+.loading-circle circle{
+    stroke: black;
+    stroke-width: 4;
+    stroke-dasharray: 157;
+    stroke-dashoffset: -157;
+    fill: transparent;
+    animation: loading-circle-ani 1s infinite;
+}
+.normal-content{
+    margin-bottom: 10rem;
 }
 @media (min-width: 1024px) {
     #scroll-section-0 h1 {
@@ -220,6 +283,7 @@ a {
         padding: 0;
     }
     .canvas-caption {
+        margin-top: -8rem;
         font-size: 2rem;
         padding: 0;
     }
